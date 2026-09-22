@@ -4,7 +4,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
 from inspection.models import Inspection
-from inspection.metric_strip import detail_card, primary_reading
 from inspection.rules import judge
 
 
@@ -53,7 +52,7 @@ def list_view(request):
 @login_required
 def detail_view(request, pk):
     row = get_object_or_404(Inspection, pk=pk)
-    return render(request, "detail.html", {"row": row, "card": detail_card(row)})
+    return render(request, "detail.html", {"row": row})
 
 
 @login_required
@@ -61,7 +60,20 @@ def primary_reading_view(request, pk):
     from django.http import JsonResponse
 
     row = get_object_or_404(Inspection, pk=pk)
-    return JsonResponse(primary_reading(row))
+    return JsonResponse(
+        {
+            "aid_code": row.aid_code,
+            "measured_cd": row.measured_cd,
+            "measured_text": str(row.measured_cd),
+            "required_cd": row.required_cd,
+            "bearing_error_deg": row.bearing_error_deg,
+            "verdict": row.verdict,
+            "note": row.note,
+            "created_by": row.created_by,
+            "pk": row.pk,
+            "channel": "primary",
+        }
+    )
 
 
 @login_required
